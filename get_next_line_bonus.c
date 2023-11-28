@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: andjenna <andjenna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/22 19:24:01 by andjenna          #+#    #+#             */
-/*   Updated: 2023/11/28 18:52:22 by andjenna         ###   ########.fr       */
+/*   Created: 2023/11/28 18:48:26 by andjenna          #+#    #+#             */
+/*   Updated: 2023/11/28 20:03:52 by andjenna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 char	*ft_get_line(char *buffer)
 {
@@ -69,7 +69,7 @@ char	*ft_next_line(char *buffer)
 
 char	*get_next_line(int fd)
 {
-	static char	*stock = NULL;
+	static char	*stock[FD_MAX] = {NULL};
 	char		*buffer;
 	char		*line;
 	int			bytes_read;
@@ -82,56 +82,16 @@ char	*get_next_line(int fd)
 	buffer = malloc(sizeof(char) * (MY_BUFFER_SIZE + 1));
 	if (!buffer)
 		return (NULL);
-	while (bytes_read > 0 && !ft_strchr(stock, '\n'))
+	while (bytes_read > 0 && !ft_strchr(stock[fd], '\n'))
 	{
 		bytes_read = read(fd, buffer, MY_BUFFER_SIZE);
 		buffer[bytes_read] = '\0';
-		stock = ft_strjoin(stock, buffer);
+		stock[fd] = ft_strjoin(stock[fd], buffer);
 	}
 	free(buffer);
-	if (bytes_read == -1 || !stock)
+	if (bytes_read == -1 || !stock[fd])
 		return (NULL);
-	line = ft_get_line(stock);
-	stock = ft_next_line(stock);
+	line = ft_get_line(stock[fd]);
+	stock[fd] = ft_next_line(stock[fd]);
 	return (line);
 }
-
-/*char	*ft_read(int fd, char *stock)
-{
-	char	*buffer;
-	int		bytes_read;
-
-	buffer = NULL;
-	buffer = malloc(sizeof(char) * MY_BUFFER_SIZE + 1);
-	if (!buffer)
-		return (NULL);
-	bytes_read = 1;
-	while (bytes_read > 0 && !ft_strchr(stock, '\n'))
-	{
-		bytes_read = read(fd, buffer, MY_BUFFER_SIZE);
-		buffer[bytes_read] = '\0';
-		stock = ft_strjoin(stock, buffer);
-	}
-	if (bytes_read == -1)
-		return (NULL);
-	free(buffer);
-	return (stock);
-}
-
-char	*get_next_line(int fd)
-{
-	static char	*stock = NULL;
-	char		*line;
-
-	line = NULL;
-	if (fd < 0 || MY_BUFFER_SIZE < 1 || read(fd, &line, 0) < 0)
-		return (NULL);
-	stock = ft_read(fd, stock);
-	if (!stock)
-		return (NULL);
-	line = ft_get_line(stock);
-	stock = ft_next_line(stock);
-	if (!stock)
-		return (stock);
-	return (line);
-}*/
